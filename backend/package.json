@@ -1,0 +1,35 @@
+{
+  "name": "hotel-backend",
+  "version": "1.0.0",
+  "description": "Hotel Management System Backend",
+  "type": "module",
+  "main": "index.js",
+"scripts": {
+  "start": "node src/index.js",
+  "dev": "nodemon src/index.js",
+
+  "create-admin": "node src/scripts/createAdmin.js",
+  "create-rooms": "node src/seeds/createSampleRoom.js",
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "generate-secret": "node generate-secret.js"
+},
+
+
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "firebase": "^12.2.1",
+    "firebase-admin": "^13.5.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
