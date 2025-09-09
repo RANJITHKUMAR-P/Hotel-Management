@@ -19,24 +19,24 @@ const allowedOrigins = [
   "https://hotel-management-puce-tau.vercel.app" // Vercel frontend
 ];
 
-// CORS configuration
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-  })
-);
+// CORS configuration - handle preflight automatically
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
-// ✅ Handle preflight requests
-app.options("*", cors());
+// Handle preflight requests globally
+app.options("*", (req, res) => {
+  res.sendStatus(200);
+});
 
 app.use(express.json());
 
@@ -74,6 +74,12 @@ app.use((req, res) => {
 // Error handling
 app.use((err, req, res, next) => {
   console.error("Server error:", err);
+  
+  // Handle CORS errors
+  if (err.message === "Not allowed by CORS") {
+    return res.status(403).json({ error: "CORS policy violation" });
+  }
+  
   res.status(500).json({ error: "Internal server error" });
 });
 
