@@ -96,9 +96,9 @@ const Login = () => {
             </button>
           </div>
           
-          <div className="text-center text-sm text-gray-500">
+          {/* <div className="text-center text-sm text-gray-500">
             Demo credentials: admin@example.com / admin1234
-          </div>
+          </div> */}
         </form>
       </div>
     </div>

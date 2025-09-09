@@ -7,7 +7,8 @@ const Dashboard = () => {
     totalRooms: 0,
     availableRooms: 0,
     totalBookings: 0,
-    activeBookings: 0
+    activeBookings: 0,
+    revenue: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -16,9 +17,9 @@ const Dashboard = () => {
       try {
         const data = await getDashboardStats();
         setStats(data);
-        setLoading(false);
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
+      } finally {
         setLoading(false);
       }
     };
@@ -26,59 +27,91 @@ const Dashboard = () => {
     fetchStats();
   }, []);
 
-  if (loading) return <div className="flex justify-center items-center h-64">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="card">
+        <div className="card-body text-center">
+          <div className="loading"></div>
+          <p>Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-600">Total Rooms</h3>
-          <p className="text-3xl font-bold mt-2">{stats.totalRooms}</p>
+    <div className="grid-1">
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon stat-icon-primary">
+            🛏️
+          </div>
+          <div className="stat-content">
+            <h3>{stats.totalRooms}</h3>
+            <p>Total Rooms</p>
+          </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-600">Available Rooms</h3>
-          <p className="text-3xl font-bold mt-2">{stats.availableRooms}</p>
+        
+        <div className="stat-card">
+          <div className="stat-icon stat-icon-success">
+            ✅
+          </div>
+          <div className="stat-content">
+            <h3>{stats.availableRooms}</h3>
+            <p>Available Rooms</p>
+          </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-600">Total Bookings</h3>
-          <p className="text-3xl font-bold mt-2">{stats.totalBookings}</p>
+        
+        <div className="stat-card">
+          <div className="stat-icon stat-icon-info">
+            📋
+          </div>
+          <div className="stat-content">
+            <h3>{stats.totalBookings}</h3>
+            <p>Total Bookings</p>
+          </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-600">Active Bookings</h3>
-          <p className="text-3xl font-bold mt-2">{stats.activeBookings}</p>
+        
+        <div className="stat-card">
+          <div className="stat-icon stat-icon-warning">
+            🔄
+          </div>
+          <div className="stat-content">
+            <h3>{stats.activeBookings}</h3>
+            <p>Active Bookings</p>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="space-y-3">
-            <Link 
-              to="/admin/rooms" 
-              className="block w-full bg-blue-500 text-white text-center py-2 rounded hover:bg-blue-600 transition"
-            >
-              Manage Rooms
-            </Link>
-            <Link 
-              to="/admin/bookings" 
-              className="block w-full bg-green-500 text-white text-center py-2 rounded hover:bg-green-600 transition"
-            >
-              Manage Bookings
-            </Link>
-            <Link 
-              to="/" 
-              className="block w-full bg-gray-500 text-white text-center py-2 rounded hover:bg-gray-600 transition"
-            >
-              View Public Site
-            </Link>
+      <div className="grid-2">
+        <div className="card">
+          <div className="card-header">
+            <h2 className="card-title">Quick Actions</h2>
+          </div>
+          <div className="card-body">
+            <div className="grid-1 gap-2">
+              <Link to="/admin/rooms" className="btn btn-primary">
+                🛏️ Manage Rooms
+              </Link>
+              <Link to="/admin/bookings" className="btn btn-success">
+                📋 Manage Bookings
+              </Link>
+              <Link to="/" className="btn btn-outline">
+                🌐 View Public Site
+              </Link>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-          <p className="text-gray-500">No recent activity to display.</p>
+        <div className="card">
+          <div className="card-header">
+            <h2 className="card-title">Recent Activity</h2>
+          </div>
+          <div className="card-body">
+            <div className="empty-state">
+              <div className="empty-icon">📊</div>
+              <p>No recent activity to display</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

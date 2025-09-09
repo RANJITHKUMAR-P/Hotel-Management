@@ -1,4 +1,3 @@
-// Update your Navbar.jsx to include public links
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -13,49 +12,84 @@ const Navbar = () => {
     navigate('/');
   };
 
+  const handleBookNow = () => {
+    if (location.pathname === '/') {
+      // Scroll to booking section if we're on the home page
+      const bookingSection = document.getElementById('booking-section');
+      if (bookingSection) {
+        bookingSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate('/');
+    }
+  };
+
+  const isActiveLink = (path) => {
+    return location.pathname === path ? 'active' : '';
+  };
+
   return (
-    <nav className="bg-blue-800 text-white shadow-lg">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-4">
-          <Link to="/" className="text-xl font-bold flex items-center">
-            🏨 Hotel Management System
-          </Link>
+    <nav className="hotel-nav">
+      <div className="hotel-nav-container">
+        <Link to="/" className="hotel-nav-brand">
+          <span className="nav-icon">🏨</span>
+          <span className="nav-text">Luxury Hotels</span>
+        </Link>
+        
+        <div className="hotel-nav-links">
+          <button
+            onClick={handleBookNow}
+            className={`hotel-nav-link ${isActiveLink('/')}`}
+          >
+            <span className="nav-icon">📅</span>
+            <span className="nav-text">Book Now</span>
+          </button>
           
-          <div className="flex items-center space-x-4">
-            {/* Public link to booking page */}
-            <Link to="/" className="hover:bg-blue-700 px-3 py-1 rounded transition-colors">
-              Book Now
+          {currentUser ? (
+            <>
+              <span className="user-welcome">Welcome, {currentUser.name || currentUser.email}</span>
+              {currentUser.role === 'admin' && (
+                <>
+                  <Link 
+                    to="/admin" 
+                    className={`hotel-nav-link ${isActiveLink('/admin')}`}
+                  >
+                    <span className="nav-icon">📊</span>
+                    <span className="nav-text">Dashboard</span>
+                  </Link>
+                  <Link 
+                    to="/admin/rooms" 
+                    className={`hotel-nav-link ${isActiveLink('/admin/rooms')}`}
+                  >
+                    <span className="nav-icon">🛏️</span>
+                    <span className="nav-text">Rooms</span>
+                  </Link>
+                  <Link 
+                    to="/admin/bookings" 
+                    className={`hotel-nav-link ${isActiveLink('/admin/bookings')}`}
+                  >
+                    <span className="nav-icon">📋</span>
+                    <span className="nav-text">Bookings</span>
+                  </Link>
+                </>
+              )}
+              <button 
+                onClick={handleLogout}
+                className="hotel-btn hotel-btn-outline"
+              >
+                <span className="nav-icon">🚪</span>
+                <span className="nav-text">Logout</span>
+              </button>
+            </>
+          ) : (
+            <Link 
+              to="/login" 
+              className={`hotel-nav-link ${isActiveLink('/login')}`}
+            >
+              <span className="nav-icon">🔐</span>
+              <span className="nav-text">Admin Login</span>
             </Link>
-            
-            {currentUser ? (
-              <>
-                <span className="hidden md:inline">Welcome, {currentUser.email}</span>
-                {currentUser.role === 'admin' && (
-                  <div className="flex space-x-2">
-                    <Link to="/admin" className="hover:bg-blue-700 px-3 py-1 rounded transition-colors">
-                      Dashboard
-                    </Link>
-                    <Link to="/admin/rooms" className="hover:bg-blue-700 px-3 py-1 rounded transition-colors">
-                      Rooms
-                    </Link>
-                    <Link to="/admin/bookings" className="hover:bg-blue-700 px-3 py-1 rounded transition-colors">
-                      Bookings
-                    </Link>
-                  </div>
-                )}
-                <button 
-                  onClick={handleLogout}
-                  className="bg-blue-700 hover:bg-blue-900 px-3 py-1 rounded transition-colors"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link to="/login" className="hover:bg-blue-700 px-3 py-1 rounded transition-colors">
-                Admin Login
-              </Link>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </nav>
