@@ -3,24 +3,22 @@
   "version": "1.0.0",
   "description": "Hotel Management System Backend",
   "type": "module",
-  "main": "index.js",
-"scripts": {
-  "start": "node src/index.js",
-  "dev": "nodemon src/index.js",
-
-  "create-admin": "node src/scripts/createAdmin.js",
-  "create-rooms": "node src/seeds/createSampleRoom.js",
-  "test": "echo \"Error: no test specified\" && exit 1",
-  "generate-secret": "node generate-secret.js"
-},
-
-
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "create-admin": "node src/scripts/createAdmin.js",
+    "create-rooms": "node src/seeds/createSampleRoom.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate-secret": "node generate-secret.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "express-validator": "^7.2.1",

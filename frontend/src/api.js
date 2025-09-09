@@ -1,38 +1,4 @@
-// import axios from "axios";
 
-// const API = axios.create({
-//   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
-// });
-
-// // Request interceptor to add auth token
-// API.interceptors.request.use((req) => {
-//   // Don't add Authorization header for login requests
-//   if (req.url.includes('/auth/login')) {
-//     return req;
-//   }
-  
-//   const token = localStorage.getItem("token");
-//   if (token) {
-//     req.headers.Authorization = `Bearer ${token}`;
-//   }
-//   return req;
-// });
-
-// // Response interceptor to handle auth errors
-// API.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response?.status === 401) {
-//       // Token expired or invalid
-//       localStorage.removeItem("token");
-//       localStorage.removeItem("user");
-//       window.location.href = "/login";
-//     }
-//     return Promise.reject(error);
-//   }
-// );
-
-// export default API;
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
@@ -77,8 +43,14 @@ export const getRooms = () => api.get('/rooms').then(res => res.data);
 export const createRoom = (roomData) => api.post('/rooms', roomData).then(res => res.data);
 export const updateRoom = (id, roomData) => api.put(`/rooms/${id}`, roomData).then(res => res.data);
 export const deleteRoom = (id) => api.delete(`/rooms/${id}`).then(res => res.data);
+// frontend/src/api.js - Add this function if it doesn't exist
 export const getAvailableRooms = (checkIn, checkOut, guests) => 
-  api.get(`/rooms/available?checkin=${checkIn}&checkout=${checkOut}&guests=${guests}`).then(res => res.data);
+  api.get(`/rooms/available?checkin=${checkIn}&checkout=${checkOut}&guests=${guests}`)
+    .then(res => res.data)
+    .catch(error => {
+      console.error('Error fetching available rooms:', error);
+      throw error;
+    });
 
 // Bookings API calls
 export const getBookings = () => api.get('/bookings').then(res => res.data);
