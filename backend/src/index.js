@@ -12,11 +12,31 @@ dotenv.config();
 
 const app = express();
 
+// ✅ Allowed origins (local + deployed frontend)
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "https://hotel-management-puce-tau.vercel.app" // Vercel frontend
+];
+
 // CORS configuration
-app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:5173"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+);
+
+// ✅ Handle preflight requests
+app.options("*", cors());
 
 app.use(express.json());
 
@@ -26,6 +46,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// Test route
 app.get("/", (req, res) => {
   res.json({ message: "Backend API is working 🚀" });
 });
@@ -38,8 +59,8 @@ app.use("/api/dashboard", dashboardRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
-  res.json({ 
-    status: "OK", 
+  res.json({
+    status: "OK",
     message: "Server is running",
     timestamp: new Date().toISOString()
   });
