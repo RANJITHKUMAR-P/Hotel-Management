@@ -12,14 +12,14 @@ dotenv.config();
 
 const app = express();
 
-// ✅ Allowed origins (local + deployed frontend)
+//  Allowed origins (local + deployed frontend)
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
   "https://hotel-management-puce-tau.vercel.app" // Vercel frontend
 ];
 
-// ✅ CORS configuration
+//  CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -36,7 +36,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// ✅ Extra fallback headers (for safety on Render)
+//  Extra fallback headers
 app.use((req, res, next) => {
   if (allowedOrigins.includes(req.headers.origin)) {
     res.header("Access-Control-Allow-Origin", req.headers.origin);
@@ -46,24 +46,24 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ Request logging
+//  Request logging
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
   next();
 });
 
-// ✅ Test route
+//  Test route
 app.get("/", (req, res) => {
   res.json({ message: "Backend API is working 🚀" });
 });
 
-// ✅ API routes
+// API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-// ✅ Health check endpoint
+//  Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({
     status: "OK",
@@ -72,12 +72,12 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// ✅ 404 handler
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-// ✅ Error handling
+//  Error handling
 app.use((err, req, res, next) => {
   console.error("Server error:", err);
 
@@ -88,8 +88,14 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-// ✅ Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} 🚀`);
-});
+
+//  Only start server outside test mode
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} 🚀`);
+  });
+}
+
+// Export app for testing
+export default app;

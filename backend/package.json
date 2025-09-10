@@ -9,7 +9,11 @@
     "dev": "nodemon src/index.js",
     "create-admin": "node src/scripts/createAdmin.js",
     "create-rooms": "node src/seeds/createSampleRoom.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --verbose --testEnvironment=node",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "cypress run",
+    "cypress:open": "cypress open",
     "generate-secret": "node generate-secret.js"
   },
   "keywords": [],
@@ -28,6 +32,12 @@
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@babel/preset-env": "^7.28.3",
+    "@types/jest": "^30.0.0",
+    "babel-jest": "^30.1.2",
+    "cross-env": "^10.0.0",
+    "jest": "^30.1.3",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4"
   }
 }

@@ -1,0 +1,30 @@
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 50
+      name: "Sustained load"
+  payload:
+    path: "test-data.csv"
+    fields:
+      - "email"
+      - "password"
+
+scenarios:
+  - name: "Login and access protected route"
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            json: "$.token"
+            as: "authToken"
+      - get:
+          url: "/api/rooms"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
