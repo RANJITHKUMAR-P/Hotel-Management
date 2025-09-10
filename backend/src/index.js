@@ -19,8 +19,8 @@ const allowedOrigins = [
   "https://hotel-management-puce-tau.vercel.app" // Vercel frontend
 ];
 
-// CORS configuration - handle preflight automatically
-app.use(cors({
+// ✅ CORS configuration
+const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -28,36 +28,42 @@ app.use(cors({
       callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+};
 
-// REMOVE or COMMENT OUT this problematic line:
-// app.options("/*", (req, res) => {
-//   res.sendStatus(200);
-// });
-
+app.use(cors(corsOptions));
 app.use(express.json());
 
-// Request logging
+// ✅ Extra fallback headers (for safety on Render)
+app.use((req, res, next) => {
+  if (allowedOrigins.includes(req.headers.origin)) {
+    res.header("Access-Control-Allow-Origin", req.headers.origin);
+  }
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
+// ✅ Request logging
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
   next();
 });
 
-// Test route
+// ✅ Test route
 app.get("/", (req, res) => {
   res.json({ message: "Backend API is working 🚀" });
 });
 
-// API routes
+// ✅ API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-// Health check endpoint
+// ✅ Health check endpoint
 app.get("/api/health", (req, res) => {
   res.json({
     status: "OK",
@@ -66,23 +72,23 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Simple 404 handler
+// ✅ 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-// Error handling
+// ✅ Error handling
 app.use((err, req, res, next) => {
   console.error("Server error:", err);
-  
-  // Handle CORS errors
+
   if (err.message === "Not allowed by CORS") {
     return res.status(403).json({ error: "CORS policy violation" });
   }
-  
+
   res.status(500).json({ error: "Internal server error" });
 });
 
+// ✅ Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} 🚀`);
