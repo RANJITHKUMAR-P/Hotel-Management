@@ -33,10 +33,10 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// Handle preflight requests globally
-app.options("*", (req, res) => {
-  res.sendStatus(200);
-});
+// REMOVE or COMMENT OUT this problematic line:
+// app.options("/*", (req, res) => {
+//   res.sendStatus(200);
+// });
 
 app.use(express.json());
 
