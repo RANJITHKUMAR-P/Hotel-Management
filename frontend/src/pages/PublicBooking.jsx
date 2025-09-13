@@ -277,53 +277,54 @@ const PublicBooking = () => {
 
         {/* Available Rooms */}
         {availableRooms.length > 0 && (
-          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-            <h2 className="text-xl font-semibold mb-4 text-gray-700">Available Rooms</h2>
-            <p className="text-gray-600 mb-4">Select a room to continue with your booking:</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {availableRooms.map(room => (
-                <div 
-                  key={room.id} 
-                  className={`border p-4 rounded-lg cursor-pointer transition-all duration-200 ${
-                    selectedRoom?.id === room.id 
-                      ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 transform scale-105' 
-                      : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
-                  }`}
-                  onClick={() => setSelectedRoom(room)}
-                >
-                  <h3 className="font-semibold text-lg mb-2 text-gray-800">Room {room.roomNumber}</h3>
-                  <p className="text-gray-600 capitalize mb-1">
-                    <span className="font-medium">Type:</span> {room.type}
-                  </p>
-                  <p className="text-gray-600 mb-1">
-                    <span className="font-medium">Max Guests:</span> {room.maxOccupancy}
-                  </p>
-                  {room.amenities && room.amenities.length > 0 && (
-                    <p className="text-gray-600 mb-2">
-                      <span className="font-medium">Amenities:</span> {room.amenities.join(', ')}
-                    </p>
-                  )}
-                  <p className="text-2xl font-bold text-green-600 mb-2">
-                    ${room.pricePerNight}/night
-                  </p>
-                  <p className="text-lg font-semibold text-gray-800">
-                    Total: ${calculateTotalCost(room)} for {
-                      differenceInDays(new Date(searchData.checkOut), new Date(searchData.checkIn))
-                    } nights
-                  </p>
-                  {selectedRoom?.id === room.id && (
-                    <div className="mt-3 text-blue-600 font-semibold flex items-center">
-                      <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Selected
-                    </div>
-                  )}
-                </div>
-              ))}
+  <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+    <h2 className="text-xl font-semibold mb-4 text-gray-700">Available Rooms</h2>
+    <p className="text-gray-600 mb-4">Select a room to continue with your booking:</p>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {availableRooms.map(room => (
+        <div 
+          key={room.id} 
+          className={`border p-4 rounded-lg transition-all duration-200 ${
+            selectedRoom?.id === room.id 
+              ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500 transform scale-105 shadow-lg' 
+              : 'border-gray-200 hover:border-blue-300 hover:shadow-md cursor-pointer'
+          }`}
+          onClick={() => setSelectedRoom(room)}
+          style={{ cursor: 'pointer' }}
+        >
+          <h3 className="font-semibold text-lg mb-2 text-gray-800">Room {room.roomNumber}</h3>
+          <p className="text-gray-600 capitalize mb-1">
+            <span className="font-medium">Type:</span> {room.type}
+          </p>
+          <p className="text-gray-600 mb-1">
+            <span className="font-medium">Max Guests:</span> {room.maxOccupancy}
+          </p>
+          {room.amenities && room.amenities.length > 0 && (
+            <p className="text-gray-600 mb-2">
+              <span className="font-medium">Amenities:</span> {room.amenities.join(', ')}
+            </p>
+          )}
+          <p className="text-2xl font-bold text-green-600 mb-2">
+            ${room.pricePerNight}/night
+          </p>
+          <p className="text-lg font-semibold text-gray-800">
+            Total: ${calculateTotalCost(room)} for {
+              differenceInDays(new Date(searchData.checkOut), new Date(searchData.checkIn))
+            } nights
+          </p>
+          {selectedRoom?.id === room.id && (
+            <div className="mt-3 text-blue-600 font-semibold flex items-center">
+              <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              Selected
             </div>
-          </div>
-        )}
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
         {/* Booking Form */}
         {selectedRoom && (

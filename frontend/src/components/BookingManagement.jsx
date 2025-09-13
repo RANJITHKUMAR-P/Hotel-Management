@@ -15,6 +15,7 @@ const BookingManagement = () => {
   const fetchBookings = async () => {
     try {
       const data = await getBookings();
+      console.log('Fetched bookings:', data);
       setBookings(data);
       setLoading(false);
     } catch (error) {
@@ -24,15 +25,66 @@ const BookingManagement = () => {
     }
   };
 
+  // Enhanced utility function to parse dates from various formats
+  const parseDate = (dateInput) => {
+    if (!dateInput) {
+      return null;
+    }
+    
+    // If it's a Firestore timestamp object (various possible structures)
+    if (typeof dateInput === 'object') {
+      // Check for Firestore v9 format with toDate method
+      if (typeof dateInput.toDate === 'function') {
+        return dateInput.toDate();
+      }
+      
+      // Check for Firestore v8 format with seconds property
+      if (dateInput.seconds !== undefined) {
+        return new Date(dateInput.seconds * 1000);
+      }
+      
+      // Check for Firestore v8 format with _seconds property
+      if (dateInput._seconds !== undefined) {
+        return new Date(dateInput._seconds * 1000);
+      }
+      
+      // If it's already a Date object
+      if (dateInput instanceof Date) {
+        return dateInput;
+      }
+    }
+    
+    // If it's a string or number
+    try {
+      const parsedDate = new Date(dateInput);
+      if (!isNaN(parsedDate.getTime())) {
+        return parsedDate;
+      }
+    } catch (error) {
+      console.error('Error parsing date:', error);
+    }
+    
+    return null;
+  };
+
   const handleStatusChange = async (bookingId, status) => {
     try {
-      await updateBookingStatus(bookingId, status);
+      // Map frontend status values to backend expected values
+      const statusMapping = {
+        'checked-in': 'checkin', // Frontend: 'checked-in' -> Backend: 'checkin'
+        'checked-out': 'checkout' // Frontend: 'checked-out' -> Backend: 'checkout'
+      };
+      
+      const backendStatus = statusMapping[status] || status;
+      console.log(`Updating booking ${bookingId} to status: ${backendStatus}`);
+      
+      await updateBookingStatus(bookingId, backendStatus);
       setSuccess('Booking status updated successfully');
       setTimeout(() => setSuccess(''), 3000);
       fetchBookings();
     } catch (error) {
       console.error('Error updating booking status:', error);
-      setError('Failed to update booking status');
+      setError('Failed to update booking status. Please try again.');
       setTimeout(() => setError(''), 3000);
     }
   };
@@ -56,15 +108,19 @@ const BookingManagement = () => {
     ? bookings 
     : bookings.filter(booking => booking.status === filter);
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateInput) => {
     try {
-      const date = new Date(dateString);
+      const date = parseDate(dateInput);
+      if (!date || isNaN(date.getTime())) {
+        return 'Invalid date';
+      }
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
       });
     } catch (error) {
+      console.error('Error formatting date:', error);
       return 'Invalid date';
     }
   };
@@ -74,7 +130,9 @@ const BookingManagement = () => {
       confirmed: { class: 'badge-primary', icon: '✅', text: 'Confirmed' },
       'checked-in': { class: 'badge-success', icon: '🏨', text: 'Checked In' },
       'checked-out': { class: 'badge-info', icon: '🚪', text: 'Checked Out' },
-      cancelled: { class: 'badge-danger', icon: '❌', text: 'Cancelled' }
+      cancelled: { class: 'badge-danger', icon: '❌', text: 'Cancelled' },
+      checkin: { class: 'badge-success', icon: '🏨', text: 'Checked In' }, // Backend status
+      checkout: { class: 'badge-info', icon: '🚪', text: 'Checked Out' } // Backend status
     };
     
     const config = statusConfig[status] || { class: 'badge-secondary', icon: '❓', text: status };
@@ -85,13 +143,27 @@ const BookingManagement = () => {
     );
   };
 
-  const calculateNights = (checkIn, checkOut) => {
+  const calculateNights = (checkInInput, checkOutInput) => {
     try {
+      const checkIn = parseDate(checkInInput);
+      const checkOut = parseDate(checkOutInput);
+      
+      if (!checkIn || !checkOut || isNaN(checkIn.getTime()) || isNaN(checkOut.getTime())) {
+        return 0;
+      }
+      
+      // Set both dates to midnight to calculate full days
       const start = new Date(checkIn);
+      start.setHours(0, 0, 0, 0);
       const end = new Date(checkOut);
+      end.setHours(0, 0, 0, 0);
+      
       const diffTime = Math.abs(end - start);
-      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      return nights;
     } catch (error) {
+      console.error('Error calculating nights:', error);
       return 0;
     }
   };
@@ -160,17 +232,14 @@ const BookingManagement = () => {
             </thead>
             <tbody>
               {filteredBookings.map(booking => {
-                const nights = calculateNights(
-                  booking.checkIn?.seconds ? booking.checkIn.seconds * 1000 : booking.checkIn,
-                  booking.checkOut?.seconds ? booking.checkOut.seconds * 1000 : booking.checkOut
-                );
+                const nights = calculateNights(booking.checkIn, booking.checkOut);
                 
                 return (
                   <tr key={booking.id}>
                     <td>
                       <div className="font-mono text-sm">{booking.bookingId}</div>
                       <div className="text-xs text-muted">
-                        {formatDate(booking.createdAt?.seconds ? booking.createdAt.seconds * 1000 : booking.createdAt)}
+                        {formatDate(booking.createdAt)}
                       </div>
                     </td>
                     <td>
@@ -188,11 +257,11 @@ const BookingManagement = () => {
                       <div className="flex flex-col gap-1">
                         <div>
                           <span className="text-sm text-muted">Check-in: </span>
-                          {formatDate(booking.checkIn?.seconds ? booking.checkIn.seconds * 1000 : booking.checkIn)}
+                          {formatDate(booking.checkIn)}
                         </div>
                         <div>
                           <span className="text-sm text-muted">Check-out: </span>
-                          {formatDate(booking.checkOut?.seconds ? booking.checkOut.seconds * 1000 : booking.checkOut)}
+                          {formatDate(booking.checkOut)}
                         </div>
                         <div className="badge badge-secondary">
                           🌙 {nights} night{nights !== 1 ? 's' : ''}
@@ -215,7 +284,7 @@ const BookingManagement = () => {
                       <div className="flex flex-col gap-2">
                         {booking.status === 'confirmed' && (
                           <button
-                            onClick={() => handleStatusChange(booking.id, 'checkin')}
+                            onClick={() => handleStatusChange(booking.id, 'checked-in')}
                             className="btn btn-success btn-sm"
                           >
                             ✅ Check In
@@ -223,7 +292,7 @@ const BookingManagement = () => {
                         )}
                         {booking.status === 'checked-in' && (
                           <button
-                            onClick={() => handleStatusChange(booking.id, 'checkout')}
+                            onClick={() => handleStatusChange(booking.id, 'checked-out')}
                             className="btn btn-primary btn-sm"
                           >
                             🚪 Check Out
@@ -296,7 +365,7 @@ const BookingManagement = () => {
             🏨
           </div>
           <div className="stat-content">
-            <h3>{bookings.filter(b => b.status === 'checked-in').length}</h3>
+            <h3>{bookings.filter(b => b.status === 'checked-in' || b.status === 'checkin').length}</h3>
             <p>Checked In</p>
           </div>
         </div>
